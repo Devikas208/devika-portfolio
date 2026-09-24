@@ -127,14 +127,14 @@
   @media (prefers-reduced-motion:reduce){.hero-orb{animation:none;opacity:.5;}}
 
   .hero-grid{
-    display:grid;grid-template-columns:1fr auto;gap:clamp(32px,6vw,80px);align-items:center;
+    display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,6vw,80px);align-items:center;
   }
   .hero-text{min-width:0;}
-  .hero-meta{font-size:13px;color:var(--ink-2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:28px;opacity:0;}
+  .hero-meta{font-size:13px;color:var(--ink-2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:28px;opacity:0;white-space:nowrap;}
   .hero-meta b{color:var(--ink-1);font-weight:600;}
   h1.hero-name{
-    font-size:clamp(48px,9vw,128px);line-height:0.94;letter-spacing:-0.03em;
-    color:var(--ink-0);overflow:hidden;
+    font-size:clamp(40px,7vw,100px);line-height:0.94;letter-spacing:-0.03em;
+    color:var(--ink-0);overflow:hidden;white-space:nowrap;
   }
   h1.hero-name .line{display:block;overflow:hidden;}
   h1.hero-name .line span{display:block;transform:translateY(110%);}
@@ -162,7 +162,7 @@
 
   /* ===== HERO PHOTO ===== */
   .hero-photo-wrap{
-    position:relative;flex:none;width:clamp(220px,22vw,320px);height:clamp(280px,28vw,400px);
+    position:relative;width:100%;height:clamp(460px,50vw,600px);
     opacity:0;transform:translateY(30px);
     transition:opacity .9s .5s cubic-bezier(.2,.7,.2,1),transform .9s .5s cubic-bezier(.2,.7,.2,1);
   }
@@ -216,7 +216,7 @@
   }
   @media (max-width:760px){
     .hero-grid{grid-template-columns:1fr;}
-    .hero-photo-wrap{width:clamp(140px,44vw,200px);height:clamp(180px,56vw,260px);margin:0 auto;order:-1;}
+    .hero-photo-wrap{width:100%;height:clamp(300px,60vw,420px);margin:0 auto;order:-1;}
     .hero-sub{font-size:15px;}
     .scroll-cue{display:none;}
     .hero-bottom{margin-top:36px;}
@@ -486,9 +486,102 @@
     .hero-meta,.hero-sub,.hero-bottom{opacity:1 !important;}
     .mindset-step{opacity:1 !important;transform:none !important;}
   }
+
+
+  /* ===== CINEMATIC PORTFOLIO INTRO ===== */
+  #portfolio-intro{
+    position:fixed;inset:0;z-index:1000;background:#050607;color:var(--ink-0);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+    transition:opacity .9s ease,visibility .9s ease;
+  }
+  #portfolio-intro::before{
+    content:"";position:absolute;inset:-20%;
+    background:radial-gradient(ellipse at 50% 45%,rgba(0,200,150,.14),transparent 42%);
+    filter:blur(10px);pointer-events:none;
+  }
+  #portfolio-intro.intro-done{opacity:0;visibility:hidden;pointer-events:none;}
+  .intro-stage{position:relative;width:min(1180px,92vw);height:min(720px,86vh);display:flex;align-items:center;justify-content:center;}
+  .intro-label{
+    position:absolute;top:4%;left:0;right:0;text-align:center;z-index:4;
+    font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-2);
+    opacity:0;transform:translateY(-10px);animation:introLabelIn .8s .25s forwards;
+  }
+  .intro-label span{color:var(--accent);}
+  .intro-frame{
+    position:relative;width:min(980px,88vw);aspect-ratio:16/9;border:1px solid rgba(245,245,247,.14);
+    border-radius:28px;background:#0b0c0e;box-shadow:0 35px 100px rgba(0,0,0,.55),0 0 80px rgba(0,200,150,.08);
+    overflow:hidden;transform:scale(.94);opacity:0;animation:introFrameIn 1s .1s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  .intro-video,.intro-fallback{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;}
+  .intro-fallback{display:block;background:transparent;}
+  .intro-fallback-inner{display:none;}
+  .intro-fallback h2{font-family:'Manrope',sans-serif;font-size:clamp(34px,6vw,78px);line-height:.92;letter-spacing:-.04em;}
+  .intro-fallback h2 span{color:var(--accent);}
+  .intro-fallback p{margin-top:16px;color:var(--ink-1);font-size:14px;max-width:300px;}
+  .intro-fallback-card{position:absolute;inset:0;border:none;border-radius:0;background:none;display:block;overflow:hidden;}
+  .intro-fallback-card img{width:100%;height:100%;object-fit:cover;object-position:center top;opacity:1;}
+  .intro-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.25),transparent 45%,rgba(0,0,0,.15));pointer-events:none;}
+  .intro-caption{position:absolute;left:5%;bottom:8%;z-index:4;opacity:0;animation:introCaptionIn .8s .7s forwards;}
+  .intro-caption .name{font-family:'Manrope',sans-serif;font-size:clamp(24px,3.2vw,44px);font-weight:800;letter-spacing:-.03em;}
+  .intro-caption .role{margin-top:5px;color:var(--accent);font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;}
+  .intro-skip{
+    position:absolute;right:5%;bottom:6%;z-index:5;border:1px solid var(--line-strong);border-radius:999px;
+    padding:9px 15px;font-size:12px;color:var(--ink-1);background:rgba(10,10,12,.6);backdrop-filter:blur(10px);
+    transition:color .25s,border-color .25s,background .25s;cursor:pointer;
+  }
+  .intro-skip:hover{color:var(--ink-0);border-color:var(--accent-line);background:var(--accent-soft);}
+  .intro-audio{
+    position:absolute;right:5%;bottom:14%;z-index:5;border:1px solid var(--line-strong);border-radius:999px;
+    padding:9px 14px;font-size:12px;color:var(--ink-1);background:rgba(10,10,12,.65);backdrop-filter:blur(10px);cursor:pointer;
+  }
+  .intro-audio:hover{color:var(--ink-0);border-color:var(--accent-line);}
+  .intro-audio.hidden{display:none;}
+  body.intro-lock{overflow:hidden;}
+  @keyframes introFrameIn{to{opacity:1;transform:scale(1);}}
+  @keyframes introLabelIn{to{opacity:1;transform:translateY(0);}}
+  @keyframes introCaptionIn{to{opacity:1;transform:none;}}
+  @media (max-width:760px){
+    .intro-stage{height:72vh;}
+    .intro-frame{width:92vw;border-radius:18px;}
+    .intro-fallback .intro-fallback-inner{grid-template-columns:1fr;width:78%;}
+    .intro-fallback-card{display:none;}
+    .intro-caption{left:5%;bottom:5%;}
+    .intro-audio{right:5%;bottom:13%;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    #portfolio-intro,.intro-frame,.intro-label,.intro-caption{animation:none;transition:none;opacity:1;transform:none;}
+  }
+
 </style>
 </head>
 <body>
+
+
+<!-- ===== CINEMATIC PORTFOLIO INTRO ===== -->
+<section id="portfolio-intro" aria-label="Portfolio introduction">
+  <div class="intro-stage">
+    <div class="intro-label">THE <span>PORTFOLIO</span></div>
+    <div class="intro-frame">
+      <!--
+        Replace intro.mp4 with your final 10-second seated-Devika video.
+        Keep it 16:9, with Devika seated in one place and speaking directly to camera.
+        The video should contain the voice: "Hi, I'm Devika..."
+      -->
+      <video id="introVideo" class="intro-video" playsinline preload="auto" muted poster="photo.jpeg">
+        <source src="intro.mp4" type="video/mp4">
+      </video>
+      <div class=intro-fallback id=introFallback aria-hidden=true><div class=intro-fallback-card><img src=photo1.png alt=Devika S.></div></div>
+      <div class="intro-overlay"></div>
+      <div class="intro-caption">
+        <div class="name">DEVIKA S</div>
+        <div class="role">Software Developer</div>
+      </div>
+    </div>
+    <button class="intro-audio" id="introAudio" type="button">Enable sound</button>
+    <button class="intro-skip" id="introSkip" type="button">Skip intro</button>
+  </div>
+</section>
+
 <a href="#main" class="skip-link">Skip to content</a>
 
 <nav id="nav" aria-label="Primary">
@@ -538,11 +631,10 @@
             <div class="scroll-cue"><span>Scroll to explore</span><span class="bar"></span></div>
           </div>
         </div>
-        <!-- Replace the src below with your actual photo path, e.g. src="photo.jpg" -->
         <div class="hero-photo-wrap" id="heroPhoto">
           <img
             class="hero-photo"
-            src="photo.jpeg"
+            src="photo.png"
             alt="Devika S. — Software Developer"
             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
           />
@@ -888,6 +980,70 @@
 (function(){
   "use strict";
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+
+  /* ---- Cinematic portfolio intro ---- */
+  var intro = document.getElementById('portfolio-intro');
+  var introVideo = document.getElementById('introVideo');
+  var introFallback = document.getElementById('introFallback');
+  var introSkip = document.getElementById('introSkip');
+  var introAudio = document.getElementById('introAudio');
+  var introFinished = false;
+  var introDuration = 10000;
+  var introTimer = null;
+
+  function finishIntro(){
+    if(introFinished) return;
+    introFinished = true;
+    if(introTimer) clearTimeout(introTimer);
+    if(introVideo){ try{ introVideo.pause(); }catch(e){} }
+    if(intro){ intro.classList.add('intro-done'); }
+    document.body.classList.remove('intro-lock');
+    setTimeout(function(){ if(intro) intro.remove(); }, 1000);
+  }
+
+  function showIntroFallback(){
+    if(introFallback) introFallback.style.display = 'flex';
+    if(introVideo) introVideo.style.display = 'none';
+    if(introAudio) introAudio.classList.add('hidden');
+    introTimer = setTimeout(finishIntro, introDuration);
+  }
+
+  document.body.classList.add('intro-lock');
+  if(introVideo){
+    introVideo.addEventListener('error', showIntroFallback, {once:true});
+    introVideo.addEventListener('loadeddata', function(){
+      if(introFallback) introFallback.style.display = 'none';
+      introVideo.play().catch(function(){
+        /* Browser may block autoplay; the sound button/first interaction can start it. */
+      });
+    }, {once:true});
+    introVideo.addEventListener('ended', finishIntro);
+    introVideo.addEventListener('timeupdate', function(){
+      if(introVideo.currentTime >= 10) finishIntro();
+    });
+    setTimeout(function(){
+      if(introVideo.readyState === 0) showIntroFallback();
+    }, 2500);
+  } else { showIntroFallback(); }
+
+  if(introAudio && introVideo){
+    introAudio.addEventListener('click', function(){
+      if(introVideo.muted){
+        introVideo.muted = false;
+        introVideo.volume = 1;
+        introVideo.play().catch(function(){});
+        introAudio.textContent = 'Sound off';
+      } else {
+        introVideo.muted = true;
+        introAudio.textContent = 'Enable sound';
+      }
+    });
+  }
+  if(introSkip) introSkip.addEventListener('click', finishIntro);
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && intro && !introFinished) finishIntro();
+  });
 
   /* ---- NAV scroll state ---- */
   var nav = document.getElementById('nav');
