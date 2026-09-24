@@ -512,8 +512,8 @@
     border-radius:28px;background:#0b0c0e;box-shadow:0 35px 100px rgba(0,0,0,.55),0 0 80px rgba(0,200,150,.08);
     overflow:hidden;transform:scale(.94);opacity:0;animation:introFrameIn 1s .1s cubic-bezier(.2,.7,.2,1) forwards;
   }
-  .intro-video,.intro-fallback{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;}
-  .intro-fallback{display:block;background:transparent;}
+  .intro-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:2;}
+  .intro-fallback{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;background:transparent;z-index:1;}
   .intro-fallback-inner{display:none;}
   .intro-fallback h2{font-family:'Manrope',sans-serif;font-size:clamp(34px,6vw,78px);line-height:.92;letter-spacing:-.04em;}
   .intro-fallback h2 span{color:var(--accent);}
@@ -1009,19 +1009,21 @@
 
   document.body.classList.add('intro-lock');
   if(introVideo){
-    /* Always show fallback image underneath as background */
+    /* Show fallback underneath always */
     if(introFallback) introFallback.style.display = 'block';
 
-    introVideo.addEventListener('error', function(){ /* video failed, fallback already showing */ }, {once:true});
-
-    introVideo.addEventListener('canplay', function(){
+    function tryPlayVideo(){
       introVideo.play().then(function(){
-        /* Video playing — hide fallback */
         if(introFallback) introFallback.style.display = 'none';
+        introVideo.style.display = 'block';
       }).catch(function(){
-        /* Autoplay blocked — fallback stays, start timer */
-        introTimer = setTimeout(finishIntro, introDuration);
+        /* autoplay blocked — keep fallback, start finish timer */
+        if(!introTimer) introTimer = setTimeout(finishIntro, introDuration);
       });
+    }
+
+    introVideo.addEventListener('error', function(){
+      if(!introTimer) introTimer = setTimeout(finishIntro, introDuration);
     }, {once:true});
 
     introVideo.addEventListener('ended', finishIntro);
@@ -1029,22 +1031,25 @@
       if(introVideo.currentTime >= 10) finishIntro();
     });
 
-    /* On first user touch, retry play (mobile autoplay policy) */
-    document.addEventListener('touchstart', function tryPlay(){
-      if(introVideo.paused && !introFinished){
-        introVideo.play().then(function(){
-          if(introFallback) introFallback.style.display = 'none';
-        }).catch(function(){});
-      }
-      document.removeEventListener('touchstart', tryPlay);
-    }, {once:true, passive:true});
+    /* Retry on first user interaction (mobile autoplay policy) */
+    function onUserGesture(){
+      if(introVideo.paused && !introFinished) tryPlayVideo();
+    }
+    document.addEventListener('touchstart', onUserGesture, {once:true, passive:true});
+    document.addEventListener('click', onUserGesture, {once:true});
 
-    /* If video never becomes playable in 5s, just run the timer on the fallback */
-    setTimeout(function(){
-      if(introVideo.paused && !introFinished){
-        introTimer = setTimeout(finishIntro, introDuration);
-      }
-    }, 5000);
+    /* Try immediately if already ready, otherwise wait for canplay */
+    if(introVideo.readyState >= 3){
+      tryPlayVideo();
+    } else {
+      introVideo.addEventListener('canplay', tryPlayVideo, {once:true});
+      /* Hard timeout — if nothing happens in 6s, just show fallback and auto-finish */
+      setTimeout(function(){
+        if(introVideo.paused && !introFinished){
+          if(!introTimer) introTimer = setTimeout(finishIntro, introDuration);
+        }
+      }, 6000);
+    }
 
   } else { showIntroFallback(); }
 
