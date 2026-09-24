@@ -566,8 +566,8 @@
         Keep it 16:9, with Devika seated in one place and speaking directly to camera.
         The video should contain the voice: "Hi, I'm Devika..."
       -->
-      <video id="introVideo" class="intro-video" playsinline preload="auto" muted poster="photo.jpeg">
-        <source src="intro.mp4" type="video/mp4">
+      <video id="introVideo" class="intro-video" playsinline preload="auto" muted>
+        <source src="intro.MP4" type="video/mp4" onerror="document.getElementById('introVideo').style.display='none';">
       </video>
       <div class=intro-fallback id=introFallback aria-hidden=true><div class=intro-fallback-card><img src=photo1.png alt=Devika S.></div></div>
       <div class="intro-overlay"></div>
@@ -1023,6 +1023,16 @@
     }
 
     introVideo.addEventListener('error', function(){
+      introVideo.style.display = 'none';
+      if(introFallback) introFallback.style.display = 'block';
+      if(!introTimer) introTimer = setTimeout(finishIntro, introDuration);
+    }, {once:true});
+
+    /* Also catch source error */
+    var introSource = introVideo.querySelector('source');
+    if(introSource) introSource.addEventListener('error', function(){
+      introVideo.style.display = 'none';
+      if(introFallback) introFallback.style.display = 'block';
       if(!introTimer) introTimer = setTimeout(finishIntro, introDuration);
     }, {once:true});
 
