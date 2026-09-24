@@ -524,6 +524,10 @@
   .intro-caption{position:absolute;left:5%;bottom:8%;z-index:4;opacity:0;animation:introCaptionIn .8s .7s forwards;}
   .intro-caption .name{font-family:'Manrope',sans-serif;font-size:clamp(24px,3.2vw,44px);font-weight:800;letter-spacing:-.03em;}
   .intro-caption .role{margin-top:5px;color:var(--accent);font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;}
+  @media (max-width:760px){
+    .intro-caption .name{font-size:18px;}
+    .intro-caption .role{font-size:10px;}
+  }
   .intro-skip{
     position:absolute;right:5%;bottom:6%;z-index:5;border:1px solid var(--line-strong);border-radius:999px;
     padding:9px 15px;font-size:12px;color:var(--ink-1);background:rgba(10,10,12,.6);backdrop-filter:blur(10px);
