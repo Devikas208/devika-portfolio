@@ -1004,32 +1004,48 @@
   function showIntroFallback(){
     if(introVideo) introVideo.style.display = 'none';
     if(introFallback) introFallback.style.display = 'block';
-    introTimer = setTimeout(finishIntro, introDuration);
+    if(!introTimer) introTimer = setTimeout(finishIntro, introDuration);
   }
 
   document.body.classList.add('intro-lock');
   if(introVideo){
-    introVideo.addEventListener('error', showIntroFallback, {once:true});
-    introVideo.addEventListener('loadeddata', function(){
-      if(introFallback) introFallback.style.display = 'none';
-      introVideo.play().catch(showIntroFallback);
+    /* Always show fallback image underneath as background */
+    if(introFallback) introFallback.style.display = 'block';
+
+    introVideo.addEventListener('error', function(){ /* video failed, fallback already showing */ }, {once:true});
+
+    introVideo.addEventListener('canplay', function(){
+      introVideo.play().then(function(){
+        /* Video playing — hide fallback */
+        if(introFallback) introFallback.style.display = 'none';
+      }).catch(function(){
+        /* Autoplay blocked — fallback stays, start timer */
+        introTimer = setTimeout(finishIntro, introDuration);
+      });
     }, {once:true});
+
     introVideo.addEventListener('ended', finishIntro);
     introVideo.addEventListener('timeupdate', function(){
       if(introVideo.currentTime >= 10) finishIntro();
     });
-    /* On mobile, trigger play on first touch if video hasn't started */
+
+    /* On first user touch, retry play (mobile autoplay policy) */
     document.addEventListener('touchstart', function tryPlay(){
       if(introVideo.paused && !introFinished){
-        if(introFallback) introFallback.style.display = 'none';
-        introVideo.play().catch(function(){});
+        introVideo.play().then(function(){
+          if(introFallback) introFallback.style.display = 'none';
+        }).catch(function(){});
       }
       document.removeEventListener('touchstart', tryPlay);
-    }, {once:true});
-    /* Fallback: if video hasn't loaded in 3s, show photo */
+    }, {once:true, passive:true});
+
+    /* If video never becomes playable in 5s, just run the timer on the fallback */
     setTimeout(function(){
-      if(introVideo.readyState < 2) showIntroFallback();
-    }, 3000);
+      if(introVideo.paused && !introFinished){
+        introTimer = setTimeout(finishIntro, introDuration);
+      }
+    }, 5000);
+
   } else { showIntroFallback(); }
 
   if(introAudio && introVideo){
